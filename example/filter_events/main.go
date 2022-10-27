@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/radovskyb/watcher"
+	"github.com/mss-boot-io/watcher"
 )
 
 func main() {

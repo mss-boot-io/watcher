@@ -5,10 +5,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/radovskyb/watcher"
+	"github.com/mss-boot-io/watcher"
 )
 
 func main() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
 	w := watcher.New()
 
 	// Uncomment to use SetMaxEvents set to 1 to allow at most 1 event to be received
@@ -31,7 +32,7 @@ func main() {
 		for {
 			select {
 			case event := <-w.Event:
-				fmt.Println(event) // Print the event's info.
+				log.Println(event) // Print the event's info.
 			case err := <-w.Error:
 				log.Fatalln(err)
 			case <-w.Closed:
@@ -41,19 +42,19 @@ func main() {
 	}()
 
 	// Watch this folder for changes.
-	if err := w.Add("."); err != nil {
+	if err := w.Add("example"); err != nil {
 		log.Fatalln(err)
 	}
 
 	// Watch test_folder recursively for changes.
-	if err := w.AddRecursive("../test_folder"); err != nil {
+	if err := w.AddRecursive("example/test_folder"); err != nil {
 		log.Fatalln(err)
 	}
 
 	// Print a list of all of the files and folders currently
 	// being watched and their paths.
 	for path, f := range w.WatchedFiles() {
-		fmt.Printf("%s: %s\n", path, f.Name())
+		log.Printf("%s: %s\n", path, f.Name())
 	}
 
 	fmt.Println()
@@ -61,6 +62,10 @@ func main() {
 	// Trigger 2 events after watcher started.
 	go func() {
 		w.Wait()
+		err := w.Ignore("example/test_folder/node_modules")
+		if err != nil {
+			log.Fatalln(err)
+		}
 		w.TriggerEvent(watcher.Create, nil)
 		w.TriggerEvent(watcher.Remove, nil)
 	}()
